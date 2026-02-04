@@ -788,6 +788,15 @@ const DramaTravelGuide = () => {
    return () => clearInterval(t);
  }, []);
 
+ // Google Analytics: SPA 뷰 전환 시 page_view 전송
+ useEffect(() => {
+   if (typeof window.gtag === 'function') {
+     const pagePath = view === 'home' ? '/' : `/detail/${selectedDrama}`;
+     const pageTitle = view === 'home' ? 'K Drama Hunters - 홈' : `K Drama Hunters - ${currentDrama?.title || selectedDrama}`;
+     window.gtag('event', 'page_view', { page_path: pagePath, page_title: pageTitle });
+   }
+ }, [view, selectedDrama, currentDrama?.title]);
+
 
  const heroItem = mediaList[heroSlideIndex];
 
