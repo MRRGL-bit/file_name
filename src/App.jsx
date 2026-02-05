@@ -26,8 +26,20 @@ const DramaTravelGuide = () => {
  const getYoutubeLink = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
  const getGoogleMapEmbedUrl = (query) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
- const getNaverMapUrl = (placeName, region) => `https://map.naver.com/v5/search/${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
+ const getNaverMapEntryUrl = (placeId) => `https://map.naver.com/p/entry/place/${placeId}?c=15.00,0,0,0,dh`;
+ const getNaverMapUrl = (placeName, region, naverPlaceId) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
  const getGoogleMapUrl = (placeName, region) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
+
+ const MapLinkIcons = ({ naverUrl, googleUrl, size = 20 }) => (
+   <div className="flex items-center gap-2">
+     <a href={naverUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-[#03C75A] hover:bg-[#02b350] transition-colors" title="네이버 지도">
+       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="4" fill="#03C75A"/><text x="12" y="17" fontSize="14" fill="white" textAnchor="middle" fontWeight="bold" fontFamily="Arial,sans-serif">N</text></svg>
+     </a>
+     <a href={googleUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white hover:bg-gray-100 transition-colors" title="구글 지도">
+       <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" fill="#EA4335"/></svg>
+     </a>
+   </div>
+ );
 
 
  // 드라마별 포스터 및 메타 정보
@@ -261,7 +273,8 @@ const DramaTravelGuide = () => {
            menu: "멸치쌈밥",
            desc: "지족마을 인근의 남해 향토음식 전문점. 남해 특색인 멸치와 쌈의 조화가 일품입니다.",
            url: getSearchUrl("남해 우리식당"),
-           image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20150831_245%2F1441008215631BYS6w_JPEG%2F12053896_0.jpg"
+           image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20150831_245%2F1441008215631BYS6w_JPEG%2F12053896_0.jpg",
+           naverPlaceId: 12053896
          },
          {
            name: "다길김밥",
@@ -1032,12 +1045,7 @@ const DramaTravelGuide = () => {
                    <div className="flex items-center gap-3 text-red-600 mb-4"><MapPin size={28} /><h3 className="text-xl font-black uppercase tracking-tighter">Location</h3></div>
                    <div className="space-y-5 mb-6"><h4 className="text-3xl font-black group-hover:text-red-500 transition-colors tracking-tight">{current.location.name}</h4><p className="text-zinc-400 text-sm font-medium leading-snug">{current.location.address}</p></div>
                    <div className="flex flex-wrap gap-3">
-                     <a href={getNaverMapUrl(current.location.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded transition-colors">
-                       네이버 지도 <ExternalLink size={14} />
-                     </a>
-                     <a href={getGoogleMapUrl(current.location.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-bold rounded transition-colors">
-                       구글 지도 <ExternalLink size={14} />
-                     </a>
+                     <MapLinkIcons naverUrl={getNaverMapUrl(current.location.name, current.location.region, current.location.naverPlaceId)} googleUrl={getGoogleMapUrl(current.location.name, current.location.region)} size={22} />
                    </div>
                  </div>
                </div>
@@ -1100,8 +1108,7 @@ const DramaTravelGuide = () => {
                          <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
                          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <a href={getNaverMapUrl(rest.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded transition-colors">네이버 지도 <ExternalLink size={12} /></a>
-                           <a href={getGoogleMapUrl(rest.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-bold rounded transition-colors">구글 지도 <ExternalLink size={12} /></a>
+                           <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId)} googleUrl={getGoogleMapUrl(rest.name, current.location.region)} size={18} />
                          </div>
                        </div>
                      </div>
@@ -1121,8 +1128,7 @@ const DramaTravelGuide = () => {
                          <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
                          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <a href={getNaverMapUrl(attr.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded transition-colors">네이버 지도 <ExternalLink size={12} /></a>
-                           <a href={getGoogleMapUrl(attr.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-bold rounded transition-colors">구글 지도 <ExternalLink size={12} /></a>
+                           <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId)} googleUrl={getGoogleMapUrl(attr.name, current.location.region)} size={18} />
                          </div>
                        </div>
                      </div>
@@ -1149,12 +1155,20 @@ const DramaTravelGuide = () => {
              <button onClick={() => { setView('detail'); setSelectedDrama('Tangerines'); setActiveScene(0); }} className={`hover:text-white transition ${view === 'detail' ? 'text-white font-bold border-b-2 border-red-600 pb-1' : ''}`}>드라마 촬영지</button>
            </nav>
          </div>
-         {wishedIds.length > 0 && (
-           <div className="flex items-center gap-2 text-zinc-400">
-             <Heart size={20} className="fill-red-500/80 text-red-500/80" />
-             <span className="text-sm font-bold">찜 {wishedIds.length}</span>
-           </div>
-         )}
+         <div className="flex items-center gap-4">
+           <button type="button" onClick={() => window.open(`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener')} className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FEE500] hover:bg-[#fdd835] transition-colors" title="카카오톡으로 공유">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.48 3 2 6.58 2 11c0 3.54 2.29 6.53 5.47 8.12-.15.55-.54 2.02-.62 2.33-.1.39.14.38.44.22.2-.11 3.12-2.06 4.38-2.89.72.1 1.46.15 2.23.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/></svg>
+           </button>
+           <button type="button" onClick={() => { navigator.clipboard?.writeText(window.location.href).then(() => alert('링크가 복사되었습니다. 인스타그램에 붙여넣기 하세요.')); }} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#f9ed32] via-[#f58529] to-[#dd2a7b] hover:opacity-90 transition-opacity" title="인스타그램 공유 (링크 복사)">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1.5" fill="white"/></svg>
+           </button>
+           {wishedIds.length > 0 && (
+             <div className="flex items-center gap-2 text-zinc-400">
+               <Heart size={20} className="fill-red-500/80 text-red-500/80" />
+               <span className="text-sm font-bold">찜 {wishedIds.length}</span>
+             </div>
+           )}
+         </div>
        </div>
      </header>
 

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "ship": "git add . && git diff --staged --quiet || (git commit -m \"Update\" && git push origin main)"
   },
   "dependencies": {
     "lucide-react": "^0.460.0",

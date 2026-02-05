@@ -29,6 +29,12 @@ git remote add origin https://github.com/사용자명/저장소명.git
 git push -u origin main
 ```
 
+### 수정사항을 file_name 저장소에 올리기
+
+- **한 번에 커밋 + 푸시**: `npm run ship` (변경 파일이 있을 때만 커밋 후 푸시)
+- **커밋 후 자동 푸시**: 이 프로젝트에 설정된 `post-commit` 훅이 커밋할 때마다 `git push origin main`을 실행합니다.  
+  (`git add .` → `git commit -m "메시지"` 만 해도 자동으로 푸시됨)
+
 ## Vercel로 배포하기
 
 1. [Vercel](https://vercel.com)에 로그인합니다.
