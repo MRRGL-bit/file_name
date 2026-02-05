@@ -1,0 +1,15 @@
+---
+description: 코드 변경 후 자동으로 Git 커밋 및 푸시
+alwaysApply: true
+---
+
+# 자동 커밋 규칙
+
+이 프로젝트(NEW PROJECT)에서 **코드를 수정하거나 파일을 추가/변경한 뒤**에는, 사용자가 별도로 "커밋해줘"라고 요청하지 않아도 다음을 수행한다.
+
+1. **스테이징**: `git add .` (또는 변경된 파일만)
+2. **커밋**: 변경 내용을 요약한 메시지로 `git commit -m "..."` 실행
+3. **푸시**: `git push origin main` 실행 (원격: https://github.com/MRRGL-bit/file_name.git)
+
+커밋 메시지는 영어 또는 한글로, 무엇을 바꿨는지 한 줄로 명확히 적는다.  
+변경 사항이 없으면(git status에 변경 없음) 커밋/푸시는 하지 않는다.

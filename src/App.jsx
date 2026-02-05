@@ -27,8 +27,10 @@ const DramaTravelGuide = () => {
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
  const getGoogleMapEmbedUrl = (query) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
  const getNaverMapEntryUrl = (placeId) => `https://map.naver.com/p/entry/place/${placeId}?c=15.00,0,0,0,dh`;
- const getNaverMapUrl = (placeName, region, naverPlaceId) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
- const getGoogleMapUrl = (placeName, region) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
+ const getMapSearchQuery = (placeName, region, mapSearchQuery) => mapSearchQuery != null ? mapSearchQuery : (region ? `${region} ${placeName}` : placeName);
+ const getNaverMapUrl = (placeName, region, naverPlaceId, mapSearchQuery) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
+ const getGoogleMapPlaceUrl = (placeId) => `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`;
+ const getGoogleMapUrl = (placeName, region, googlePlaceId, mapSearchQuery) => googlePlaceId ? getGoogleMapPlaceUrl(googlePlaceId) : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
 
  const MapLinkIcons = ({ naverUrl, googleUrl, size = 20 }) => (
    <div className="flex items-center gap-2">
@@ -266,7 +268,8 @@ const DramaTravelGuide = () => {
            menu: "짜장면 & 탕수육",
            desc: "영화 촬영지 그 자체. 소박한 동네 중국집이지만, 영화의 여운을 느끼며 먹는 짜장면 한 그릇은 특별한 맛을 선사합니다.",
            url: getSearchUrl("남해 지족반점"),
-           image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fpup-review-phinf.pstatic.net%2FMjAyNTExMDlfMTc0%2FMDAxNzYyNjg5NTI4ODQ2.Az6LJ8SPHVTl7VpzxfWOHvXtXmJrn4oRz_V21wluQIQg.vRJJaHC0c3ELZ1rRV_csA7z2henxi3hOrkPs-4F2Xrog.JPEG%2F395AB149-F816-419D-8C49-FCE635CA56C0.jpeg%3Ftype%3Dw1500_60_sharpen"
+           image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fpup-review-phinf.pstatic.net%2FMjAyNTExMDlfMTc0%2FMDAxNzYyNjg5NTI4ODQ2.Az6LJ8SPHVTl7VpzxfWOHvXtXmJrn4oRz_V21wluQIQg.vRJJaHC0c3ELZ1rRV_csA7z2henxi3hOrkPs-4F2Xrog.JPEG%2F395AB149-F816-419D-8C49-FCE635CA56C0.jpeg%3Ftype%3Dw1500_60_sharpen",
+           mapSearchQuery: "지족반점"
          },
          {
            name: "우리식당",
@@ -1045,7 +1048,7 @@ const DramaTravelGuide = () => {
                    <div className="flex items-center gap-3 text-red-600 mb-4"><MapPin size={28} /><h3 className="text-xl font-black uppercase tracking-tighter">Location</h3></div>
                    <div className="space-y-5 mb-6"><h4 className="text-3xl font-black group-hover:text-red-500 transition-colors tracking-tight">{current.location.name}</h4><p className="text-zinc-400 text-sm font-medium leading-snug">{current.location.address}</p></div>
                    <div className="flex flex-wrap gap-3">
-                     <MapLinkIcons naverUrl={getNaverMapUrl(current.location.name, current.location.region, current.location.naverPlaceId)} googleUrl={getGoogleMapUrl(current.location.name, current.location.region)} size={22} />
+                     <MapLinkIcons naverUrl={getNaverMapUrl(current.location.name, current.location.region, current.location.naverPlaceId, current.location.mapSearchQuery)} googleUrl={getGoogleMapUrl(current.location.name, current.location.region, current.location.googlePlaceId, current.location.mapSearchQuery)} size={22} />
                    </div>
                  </div>
                </div>
@@ -1108,7 +1111,7 @@ const DramaTravelGuide = () => {
                          <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
                          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId)} googleUrl={getGoogleMapUrl(rest.name, current.location.region)} size={18} />
+                           <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId, rest.mapSearchQuery)} googleUrl={getGoogleMapUrl(rest.name, current.location.region, rest.googlePlaceId, rest.mapSearchQuery)} size={18} />
                          </div>
                        </div>
                      </div>
@@ -1128,7 +1131,7 @@ const DramaTravelGuide = () => {
                          <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
                          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId)} googleUrl={getGoogleMapUrl(attr.name, current.location.region)} size={18} />
+                           <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId, attr.mapSearchQuery)} googleUrl={getGoogleMapUrl(attr.name, current.location.region, attr.googlePlaceId, attr.mapSearchQuery)} size={18} />
                          </div>
                        </div>
                      </div>
