@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X } from 'lucide-react';
 
 
@@ -22,6 +22,11 @@ const DramaTravelGuide = () => {
  const [heroSlideIndex, setHeroSlideIndex] = useState(0);
  const [searchOpen, setSearchOpen] = useState(false);
  const [searchQuery, setSearchQuery] = useState("");
+ const [mapsScriptLoaded, setMapsScriptLoaded] = useState(false);
+ const mapContainerRef = useRef(null);
+ const mapInstanceRef = useRef(null);
+ const markersRef = useRef([]);
+ const tourMapRunRef = useRef(null);
 
 
  const getSearchUrl = (query) => `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
@@ -823,6 +828,90 @@ const DramaTravelGuide = () => {
  }, [activeScene, selectedDrama, view]);
 
 
+ // Google Maps JS API 스크립트 로드 (Tour Map용)
+ useEffect(() => {
+   if (view !== 'detail' || !googleMapsApiKey || window.google?.maps) {
+     if (window.google?.maps) setMapsScriptLoaded(true);
+     return;
+   }
+   const id = 'google-maps-script';
+   if (document.getElementById(id)) return;
+   const script = document.createElement('script');
+   script.id = id;
+   script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}`;
+   script.async = true;
+   script.defer = true;
+   script.onload = () => setMapsScriptLoaded(true);
+   document.head.appendChild(script);
+ }, [view, googleMapsApiKey]);
+
+
+ // Tour Map: 지도 생성, 전체 장소 Geocode 후 마커 표시 및 fitBounds
+ useEffect(() => {
+   if (view !== 'detail' || !current || !mapContainerRef.current || !window.google?.maps) return;
+   const runId = `${selectedDrama}-${activeScene}-${Date.now()}`;
+   tourMapRunRef.current = runId;
+   const mapEl = mapContainerRef.current;
+   if (!mapInstanceRef.current) {
+     mapInstanceRef.current = new window.google.maps.Map(mapEl, {
+       center: { lat: 37.5, lng: 127 },
+       zoom: 11,
+       disableDefaultUI: false,
+       zoomControl: true,
+       mapTypeControl: true,
+       fullscreenControl: true,
+       styles: []
+     });
+   }
+   const map = mapInstanceRef.current;
+   const geocoder = new window.google.maps.Geocoder();
+   const pins = [
+     { pinId: 'main', label: current.location.name, query: getMapSearchQuery(current.location.name, current.location.region, current.location.mapSearchQuery, current.location.address) },
+     ...current.restaurants.map((rest, i) => ({ pinId: `rest-${i}`, label: rest.name, query: getMapSearchQuery(rest.name, current.location.region, rest.mapSearchQuery, rest.address) })),
+     ...current.attractions.map((attr, i) => ({ pinId: `attr-${i}`, label: attr.name, query: getMapSearchQuery(attr.name, current.location.region, attr.mapSearchQuery, attr.address) }))
+   ];
+   const clearMarkers = () => {
+     markersRef.current.forEach(({ marker }) => marker.setMap(null));
+     markersRef.current = [];
+   };
+   clearMarkers();
+   const bounds = new window.google.maps.LatLngBounds();
+   let done = 0;
+   pins.forEach(({ pinId, label, query }) => {
+     if (!query || !query.trim()) { done++; return; }
+     geocoder.geocode({ address: query }, (results, status) => {
+       if (tourMapRunRef.current !== runId) return;
+       if (status === 'OK' && results?.[0]) {
+         const loc = results[0].geometry.location;
+         const marker = new window.google.maps.Marker({
+           map,
+           position: loc,
+           title: label
+         });
+         markersRef.current.push({ pinId, marker, position: loc });
+         bounds.extend(loc);
+       }
+       done++;
+       if (done === pins.length && tourMapRunRef.current === runId) {
+         if (markersRef.current.length > 0) map.fitBounds(bounds);
+       }
+     });
+   });
+   return () => { tourMapRunRef.current = null; clearMarkers(); };
+ }, [current, activeScene, selectedDrama, mapsScriptLoaded]);
+
+
+ // Tour Map: 장소 클릭 시 해당 마커로 이동
+ useEffect(() => {
+   if (!mapInstanceRef.current || !markersRef.current.length) return;
+   const found = markersRef.current.find((m) => m.pinId === selectedPin);
+   if (found) {
+     mapInstanceRef.current.panTo(found.position);
+     mapInstanceRef.current.setZoom(16);
+   }
+ }, [selectedPin]);
+
+
  const handlePinClick = (query, pinId) => {
    const regionPrefix = current.location.region ? `${current.location.region} ` : "";
    const finalQuery = query.includes(current.location.region) ? query : regionPrefix + query;
@@ -1116,15 +1205,23 @@ const DramaTravelGuide = () => {
                     </div>
                   </div>
                   <div className="flex-grow w-full min-h-[300px] relative bg-zinc-800">
-                    <iframe
-                       width="100%"
-                       height="100%"
-                       frameBorder="0"
-                       scrolling="no"
-                       src={getGoogleMapEmbedUrl(mapQuery)}
-                       className="absolute inset-0 grayscale contrast-125 opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
-                       title="Google Map"
-                    ></iframe>
+                    {googleMapsApiKey ? (
+                      <div
+                        ref={mapContainerRef}
+                        className="absolute inset-0 w-full h-full min-h-[300px] grayscale contrast-125 opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                        aria-label="Tour Map"
+                      />
+                    ) : (
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        scrolling="no"
+                        src={getGoogleMapEmbedUrl(mapQuery)}
+                        className="absolute inset-0 grayscale contrast-125 opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                        title="Google Map"
+                      />
+                    )}
                   </div>
                   <div className="p-4 bg-zinc-950/80 backdrop-blur-sm space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
                      {[

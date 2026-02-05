@@ -10,7 +10,10 @@
 
 1. [Google Cloud Console](https://console.cloud.google.com/) 로그인
 2. **API 및 서비스** → **사용자 인증 정보** → **사용자 인증 정보 만들기** → **API 키**
-3. **Maps Embed API** 사용 설정: **API 및 서비스** → **라이브러리** → "Maps Embed API" 검색 → **사용** 클릭
+3. **필수 API 사용 설정**: **API 및 서비스** → **라이브러리**에서 아래 API를 검색 후 **사용** 클릭  
+   - **Maps Embed API** (상단 임베드 지도)  
+   - **Maps JavaScript API** (Tour Map 전체 장소 표시)  
+   - **Geocoding API** (Tour Map 장소 좌표 변환)
 4. (권장) API 키 제한 설정: **애플리케이션 제한**에서 "HTTP 리퍼러" 선택 후, 로컬·배포 도메인 추가  
    예: `http://localhost:*`, `https://your-site.vercel.app/*`
 
