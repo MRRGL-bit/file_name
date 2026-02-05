@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X } from 'lucide-react';
 
 
 const WISH_STORAGE_KEY = 'k-drama-hunters-wishlist';
@@ -20,6 +20,8 @@ const DramaTravelGuide = () => {
    }
  });
  const [heroSlideIndex, setHeroSlideIndex] = useState(0);
+ const [searchOpen, setSearchOpen] = useState(false);
+ const [searchQuery, setSearchQuery] = useState("");
 
 
  const getSearchUrl = (query) => `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
@@ -765,6 +767,38 @@ const DramaTravelGuide = () => {
  const currentScenes = scenesData[selectedDrama] || [];
  const current = currentScenes[activeScene] || currentScenes[0];
 
+ const searchResults = useMemo(() => {
+   const q = searchQuery.trim();
+   if (!q) return [];
+   const results = [];
+   mediaList.forEach((item) => {
+     if (item.title.includes(q) || (item.cast && item.cast.includes(q))) {
+       results.push({ type: 'drama', dramaId: item.id, dramaTitle: item.title, sceneIndex: 0 });
+     }
+   });
+   Object.keys(scenesData).forEach((dramaId) => {
+     const scenes = scenesData[dramaId] || [];
+     const drama = mediaList.find((m) => m.id === dramaId);
+     scenes.forEach((scene, idx) => {
+       const loc = scene.location || {};
+       const matchLocation = [loc.name, loc.region, loc.address].some((s) => s && String(s).includes(q));
+       if (matchLocation) {
+         results.push({ type: 'scene', dramaId, sceneIndex: idx, sceneTitle: scene.title, dramaTitle: drama?.title || dramaId, locationName: loc.name });
+       }
+     });
+   });
+   return results;
+ }, [searchQuery]);
+
+ const openSearch = () => { setSearchOpen(true); setSearchQuery(""); };
+ const closeSearch = () => { setSearchOpen(false); setSearchQuery(""); };
+ const goToResult = (r) => {
+   setSelectedDrama(r.dramaId);
+   setActiveScene(r.sceneIndex ?? 0);
+   setView('detail');
+   closeSearch();
+ };
+
 
  useEffect(() => {
    if (current) {
@@ -1163,8 +1197,11 @@ const DramaTravelGuide = () => {
              <button onClick={() => { setView('detail'); setSelectedDrama('Tangerines'); setActiveScene(0); }} className={`hover:text-white transition ${view === 'detail' ? 'text-white font-bold border-b-2 border-red-600 pb-1' : ''}`}>드라마 촬영지</button>
            </nav>
          </div>
-         <div className="flex items-center gap-4">
-           <button type="button" onClick={() => window.open(`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener')} className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FEE500] hover:bg-[#fdd835] transition-colors" title="카카오톡으로 공유">
+        <div className="flex items-center gap-4">
+          <button type="button" onClick={openSearch} className="flex items-center justify-center w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors" title="검색">
+            <Search size={20} />
+          </button>
+          <button type="button" onClick={() => window.open(`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener')} className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FEE500] hover:bg-[#fdd835] transition-colors" title="카카오톡으로 공유">
              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.48 3 2 6.58 2 11c0 3.54 2.29 6.53 5.47 8.12-.15.55-.54 2.02-.62 2.33-.1.39.14.38.44.22.2-.11 3.12-2.06 4.38-2.89.72.1 1.46.15 2.23.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/></svg>
            </button>
            <button type="button" onClick={() => { navigator.clipboard?.writeText(window.location.href).then(() => alert('링크가 복사되었습니다. 인스타그램에 붙여넣기 하세요.')); }} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#f9ed32] via-[#f58529] to-[#dd2a7b] hover:opacity-90 transition-opacity" title="인스타그램 공유 (링크 복사)">
@@ -1178,10 +1215,57 @@ const DramaTravelGuide = () => {
            )}
          </div>
        </div>
-     </header>
+    </header>
 
+    {/* 검색 오버레이 */}
+    {searchOpen && (
+      <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex flex-col" role="dialog" aria-modal="true" aria-label="검색">
+        <div className="max-w-2xl mx-auto w-full px-6 pt-6 pb-4 flex items-center gap-3">
+          <div className="flex-1 relative">
+            <Search size={22} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="작품명, 주연, 촬영지(명장면) 검색..."
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-zinc-800/90 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+              autoFocus
+            />
+          </div>
+          <button type="button" onClick={closeSearch} className="flex items-center justify-center w-11 h-11 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors" aria-label="검색 닫기">
+            <X size={24} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto max-w-2xl mx-auto w-full px-6 pb-8">
+          {!searchQuery.trim() ? (
+            <p className="text-zinc-500 text-sm py-8">작품 이름, 주연, 촬영지(명장면)를 입력하면 해당 작품이 표시됩니다.</p>
+          ) : searchResults.length === 0 ? (
+            <p className="text-zinc-500 text-sm py-8">검색 결과가 없습니다.</p>
+          ) : (
+            <ul className="space-y-1">
+              {searchResults.map((r, i) => (
+                <li key={`${r.dramaId}-${r.sceneIndex ?? 0}-${i}`}>
+                  <button
+                    type="button"
+                    onClick={() => goToResult(r)}
+                    className="w-full text-left px-4 py-3.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/80 hover:border-zinc-600 transition-colors flex flex-col gap-0.5"
+                  >
+                    <span className="font-bold text-white">{r.dramaTitle}</span>
+                    {r.type === 'scene' ? (
+                      <span className="text-sm text-zinc-400">명장면: {r.sceneTitle} · {r.locationName}</span>
+                    ) : (
+                      <span className="text-sm text-zinc-400">작품</span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    )}
 
-     {view === 'home' ? <HomeView /> : <DetailView />}
+    {view === 'home' ? <HomeView /> : <DetailView />}
 
 
      <footer className="mt-20 py-24 px-10 border-t border-zinc-900 bg-black text-zinc-500 font-bold text-left">
