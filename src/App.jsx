@@ -25,7 +25,7 @@ const DramaTravelGuide = () => {
  const getSearchUrl = (query) => `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
  const getYoutubeLink = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
- const getGoogleMapEmbedUrl = (query) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+ const getGoogleMapEmbedUrl = (query, zoom = 11) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=${zoom}&ie=UTF8&iwloc=&output=embed`;
  const getNaverMapEntryUrl = (placeId) => `https://map.naver.com/p/entry/place/${placeId}?c=15.00,0,0,0,dh`;
  const getMapSearchQuery = (placeName, region, mapSearchQuery) => {
    if (mapSearchQuery != null) return mapSearchQuery;
@@ -768,7 +768,7 @@ const DramaTravelGuide = () => {
 
  useEffect(() => {
    if (current) {
-     setMapQuery(current.location.name);
+     setMapQuery(current.location.region || current.location.name);
      setSelectedPin("main");
    }
    window.scrollTo(0, 0);
