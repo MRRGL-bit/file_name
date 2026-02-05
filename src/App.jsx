@@ -26,6 +26,8 @@ const DramaTravelGuide = () => {
  const getYoutubeLink = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
  const getGoogleMapEmbedUrl = (query) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+ const getNaverMapUrl = (placeName, region) => `https://map.naver.com/v5/search/${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
+ const getGoogleMapUrl = (placeName, region) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(region ? `${region} ${placeName}` : placeName)}`;
 
 
  // 드라마별 포스터 및 메타 정보
@@ -813,6 +815,22 @@ const DramaTravelGuide = () => {
        />
        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+       <button
+         type="button"
+         onClick={() => setHeroSlideIndex((i) => (i - 1 + mediaList.length) % mediaList.length)}
+         className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors"
+         aria-label="이전 슬라이드"
+       >
+         <ChevronLeft size={28} />
+       </button>
+       <button
+         type="button"
+         onClick={() => setHeroSlideIndex((i) => (i + 1) % mediaList.length)}
+         className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center text-white transition-colors"
+         aria-label="다음 슬라이드"
+       >
+         <ChevronRight size={28} />
+       </button>
        <div className="absolute bottom-0 left-0 right-0 flex gap-2 justify-center pb-6 z-10">
          {mediaList.map((_, i) => (
            <button
@@ -1006,18 +1024,23 @@ const DramaTravelGuide = () => {
              {/* Info Grid: Location and MAP */}
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-white text-left">
                {/* Location Card */}
-               <a href={current.location.url} target="_blank" rel="noopener noreferrer" className="lg:col-span-2 bg-zinc-900/80 rounded-xl border border-zinc-800 hover:border-red-600 transition backdrop-blur-md group overflow-hidden shadow-lg">
+               <div className="lg:col-span-2 bg-zinc-900/80 rounded-xl border border-zinc-800 backdrop-blur-md group overflow-hidden shadow-lg">
                  <div className="aspect-video w-full overflow-hidden">
                    <img src={current.location.image} alt={current.location.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                  </div>
                  <div className="p-8">
-                   <div className="flex items-center justify-between mb-8">
-                     <div className="flex items-center gap-3 text-red-600"><MapPin size={28} /><h3 className="text-xl font-black uppercase tracking-tighter">Location</h3></div>
-                     <div className="text-xs font-bold text-zinc-500 group-hover:text-white flex items-center gap-1 transition-colors uppercase tracking-widest">상세 정보 보기 <ExternalLink size={14} /></div>
+                   <div className="flex items-center gap-3 text-red-600 mb-4"><MapPin size={28} /><h3 className="text-xl font-black uppercase tracking-tighter">Location</h3></div>
+                   <div className="space-y-5 mb-6"><h4 className="text-3xl font-black group-hover:text-red-500 transition-colors tracking-tight">{current.location.name}</h4><p className="text-zinc-400 text-sm font-medium leading-snug">{current.location.address}</p></div>
+                   <div className="flex flex-wrap gap-3">
+                     <a href={getNaverMapUrl(current.location.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded transition-colors">
+                       네이버 지도 <ExternalLink size={14} />
+                     </a>
+                     <a href={getGoogleMapUrl(current.location.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 bg-zinc-700 hover:bg-zinc-600 text-white text-sm font-bold rounded transition-colors">
+                       구글 지도 <ExternalLink size={14} />
+                     </a>
                    </div>
-                   <div className="space-y-5"><h4 className="text-3xl font-black group-hover:text-red-500 transition-colors tracking-tight">{current.location.name}</h4><p className="text-zinc-400 text-sm font-medium leading-snug">{current.location.address}</p></div>
                  </div>
-               </a>
+               </div>
 
 
                {/* Tour Map with Interactive Pins */}
@@ -1070,10 +1093,18 @@ const DramaTravelGuide = () => {
                  <h3 className="text-2xl font-black mb-8 flex items-center gap-3 uppercase tracking-tighter text-white"><Utensils size={28} className="text-red-600" /> Dining Guide</h3>
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                    {current.restaurants.map((rest, i) => (
-                     <a key={i} href={rest.url} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 group cursor-pointer rounded-xl overflow-hidden border border-zinc-800 hover:border-red-600/50 transition-all block shadow-lg">
+                     <div key={i} className="bg-zinc-900 group rounded-xl overflow-hidden border border-zinc-800 hover:border-red-600/50 transition-all shadow-lg">
                        <div className="h-40 overflow-hidden relative"><img src={rest.image} alt={rest.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /><div className="absolute top-3 right-3 px-2 py-1 bg-red-600 text-[8px] font-black rounded uppercase shadow-lg z-10 tracking-widest text-white uppercase">Best</div></div>
-                       <div className="p-5"><h4 className="font-black text-sm mb-1 group-hover:text-red-500 transition-colors uppercase tracking-tight text-white">{rest.name}</h4><p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p><p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium">{rest.desc}</p></div>
-                     </a>
+                       <div className="p-5">
+                         <h4 className="font-black text-sm mb-1 uppercase tracking-tight text-white">{rest.name}</h4>
+                         <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
+                         <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
+                         <div className="flex flex-wrap gap-2">
+                           <a href={getNaverMapUrl(rest.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded transition-colors">네이버 지도 <ExternalLink size={12} /></a>
+                           <a href={getGoogleMapUrl(rest.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-bold rounded transition-colors">구글 지도 <ExternalLink size={12} /></a>
+                         </div>
+                       </div>
+                     </div>
                    ))}
                  </div>
                </div>
@@ -1084,13 +1115,17 @@ const DramaTravelGuide = () => {
                  <h3 className="text-2xl font-black mb-8 flex items-center gap-3 uppercase tracking-tighter text-white"><Star size={28} className="text-red-600" /> Nearby Attraction</h3>
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-bold text-white">
                    {current.attractions.map((attr, i) => (
-                     <a key={i} href={attr.url} target="_blank" rel="noopener noreferrer" className="bg-zinc-900 rounded-xl border border-zinc-800 hover:bg-zinc-800/80 hover:border-red-600/30 transition-all cursor-pointer flex flex-col h-full group block overflow-hidden shadow-lg">
+                     <div key={i} className="bg-zinc-900 rounded-xl border border-zinc-800 hover:border-red-600/30 transition-all flex flex-col h-full overflow-hidden shadow-lg">
                        <div className="h-40 w-full overflow-hidden text-white"><img src={attr.image} alt={attr.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /></div>
                        <div className="p-6 flex flex-col justify-between flex-grow">
-                         <h4 className="font-black text-sm mb-3 flex justify-between items-center group-hover:text-red-500 transition-colors uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
-                         <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3">{attr.desc}</p>
+                         <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
+                         <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
+                         <div className="flex flex-wrap gap-2">
+                           <a href={getNaverMapUrl(attr.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded transition-colors">네이버 지도 <ExternalLink size={12} /></a>
+                           <a href={getGoogleMapUrl(attr.name, current.location.region)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-white text-xs font-bold rounded transition-colors">구글 지도 <ExternalLink size={12} /></a>
+                         </div>
                        </div>
-                     </a>
+                     </div>
                    ))}
                  </div>
                </div>
