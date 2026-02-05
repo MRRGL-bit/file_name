@@ -27,7 +27,12 @@ const DramaTravelGuide = () => {
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
  const getGoogleMapEmbedUrl = (query) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
  const getNaverMapEntryUrl = (placeId) => `https://map.naver.com/p/entry/place/${placeId}?c=15.00,0,0,0,dh`;
- const getMapSearchQuery = (placeName, region, mapSearchQuery) => mapSearchQuery != null ? mapSearchQuery : (region ? `${region} ${placeName}` : placeName);
+ const getMapSearchQuery = (placeName, region, mapSearchQuery) => {
+   if (mapSearchQuery != null) return mapSearchQuery;
+   if (!region) return placeName;
+   if (placeName.includes(region)) return placeName;
+   return `${region} ${placeName}`;
+ };
  const getNaverMapUrl = (placeName, region, naverPlaceId, mapSearchQuery) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
  const getGoogleMapPlaceUrl = (placeId) => `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`;
  const getGoogleMapUrl = (placeName, region, googlePlaceId, mapSearchQuery) => googlePlaceId ? getGoogleMapPlaceUrl(googlePlaceId) : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
