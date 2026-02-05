@@ -27,17 +27,26 @@ const DramaTravelGuide = () => {
  const getSearchUrl = (query) => `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
  const getYoutubeLink = (videoId) => `https://www.youtube.com/watch?v=${videoId}`;
  const getThumbnail = (videoId, quality = 'maxresdefault') => `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
- const getGoogleMapEmbedUrl = (query, zoom = 11) => `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=${zoom}&ie=UTF8&iwloc=&output=embed`;
+ const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+ const getGoogleMapEmbedUrl = (query, zoom = 11) => {
+   const q = encodeURIComponent(query);
+   if (googleMapsApiKey) {
+     return `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${q}&zoom=${zoom}`;
+   }
+   return `https://maps.google.com/maps?q=${q}&t=&z=${zoom}&ie=UTF8&iwloc=&output=embed`;
+ };
  const getNaverMapEntryUrl = (placeId) => `https://map.naver.com/p/entry/place/${placeId}?c=15.00,0,0,0,dh`;
- const getMapSearchQuery = (placeName, region, mapSearchQuery) => {
+ const getMapSearchQuery = (placeName, region, mapSearchQuery, address) => {
    if (mapSearchQuery != null) return mapSearchQuery;
+   const addr = address && String(address).trim();
+   if (addr) return addr;
    if (!region) return placeName;
    if (placeName.includes(region)) return placeName;
    return `${region} ${placeName}`;
  };
- const getNaverMapUrl = (placeName, region, naverPlaceId, mapSearchQuery) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
+ const getNaverMapUrl = (placeName, region, naverPlaceId, mapSearchQuery, address) => naverPlaceId ? getNaverMapEntryUrl(naverPlaceId) : `https://map.naver.com/v5/search/${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery, address))}`;
  const getGoogleMapPlaceUrl = (placeId) => `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`;
- const getGoogleMapUrl = (placeName, region, googlePlaceId, mapSearchQuery) => googlePlaceId ? getGoogleMapPlaceUrl(googlePlaceId) : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery))}`;
+ const getGoogleMapUrl = (placeName, region, googlePlaceId, mapSearchQuery, address) => googlePlaceId ? getGoogleMapPlaceUrl(googlePlaceId) : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(getMapSearchQuery(placeName, region, mapSearchQuery, address))}`;
 
  const MapLinkIcons = ({ naverUrl, googleUrl, size = 20 }) => (
    <div className="flex items-center gap-2">
@@ -458,14 +467,16 @@ const DramaTravelGuide = () => {
            menu: "밴댕이 회무침",
            desc: "섬으로 떠나기 전 인천에서 즐길 수 있는 별미 중 하나입니다.",
            url: getSearchUrl("인천 연안부두 맛집"),
+           mapSearchQuery: "연안부두",
            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
          }
        ],
        attractions: [
          {
-           name: "사승봉도 낙조 명당",
+           name: "사승봉도",
            desc: "서해안 최고의 일몰을 감상할 수 있는 해변 포인트입니다.",
            url: getSearchUrl("사승봉도 일몰"),
+           mapSearchQuery: "사승봉도",
            image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2F20160601_129%2Fkalgard_1464792982366YEPre_JPEG%2FIMG_7432.jpg&type=sc960_832"
          },
          {
@@ -489,6 +500,7 @@ const DramaTravelGuide = () => {
          region: "인천",
          name: "인스파이어 리조트 오로라",
          address: "인천광역시 중구 공항문화로 127",
+         mapSearchQuery: "인스파이어드 리조트",
          desc: "시즌 5의 새로운 천국도 랜드마크입니다. 150m 길이의 LED 천장에서 펼쳐지는 환상적인 디지털 아트 쇼가 커플들의 로맨틱한 분위기를 극대화합니다.",
          url: getSearchUrl("인스파이어 리조트 오로라"),
          image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
@@ -527,6 +539,7 @@ const DramaTravelGuide = () => {
            name: "을왕리 해변",
            desc: "리조트 인근의 대표 해수욕장으로 시원한 바닷바람을 쐬기 좋습니다.",
            url: getSearchUrl("을왕리 해수욕장"),
+           mapSearchQuery: "을왕리 해수욕장",
            image: "https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNTA5MDVfMTE1%2FMDAxNzU3MDcxNDU3MDc5.nK0Sm2e1uSL2AiGFHNBSV211gKlo6rHG31SQA2uU8HYg.tRftuULUhDlmP8c9Go-PEMiYaK19Q3pc0KnDeBbF6a0g.JPEG%2FKakaoTalk_Photo_2025-09-05-19-26-59-28.jpeg&type=sc960_832"
          },
          {
@@ -607,17 +620,19 @@ const DramaTravelGuide = () => {
        },
        restaurants: [
          {
-           name: "성수 연방 소바",
+           name: "성수연방",
            menu: "마제소바 & 가츠산도",
            desc: "연습에 지친 헌터들이 몰래 빠져나와 에너지를 보충하던 성수동 최고의 힙한 맛집입니다.",
            url: getSearchUrl("성수동 마제소바 맛집"),
+           mapSearchQuery: "성수연방",
            image: "https://d12zq4w4guyljn.cloudfront.net/750_750_20250829052217_photo1_296e8744c199.webp"
          },
          {
-           name: "글로우 카페",
+           name: "글로우 성수",
            menu: "아인슈페너",
            desc: "작전 회의를 가장한 수다 타임이 이루어지는 곳으로, 옥상 테라스 뷰가 일품입니다.",
            url: getSearchUrl("성수 글로우 카페"),
+           mapSearchQuery: "글로우 성수",
            image: "https://the-edit.co.kr/wp-content/uploads/2023/07/glow_cheong02_batch.jpg"
          },
          {
@@ -669,10 +684,11 @@ const DramaTravelGuide = () => {
            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh9xPRG-PwPFxm6XIeodWtFDAWfWCEnV5LvQ&s"
          },
          {
-           name: "송도 한옥마을 마당",
+           name: "경복궁 한옥마을점",
            menu: "한우 구이",
            desc: "대규모 전투를 마친 헌터 팀의 공식 회식 장소입니다. 고급스러운 분위기가 특징입니다.",
            url: getSearchUrl("송도 한옥마을 마당"),
+           mapSearchQuery: "경복궁 한옥마을점",
            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHpYVRoaKdsY7lAXPpHDykzpCeoziiwTx4uQ&s"
          },
          {
@@ -793,9 +809,7 @@ const DramaTravelGuide = () => {
  const openSearch = () => { setSearchOpen(true); setSearchQuery(""); };
  const closeSearch = () => { setSearchOpen(false); setSearchQuery(""); };
  const goToResult = (r) => {
-   setSelectedDrama(r.dramaId);
-   setActiveScene(r.sceneIndex ?? 0);
-   setView('detail');
+   goToDetail(r.dramaId, r.sceneIndex ?? 0);
    closeSearch();
  };
 
@@ -830,13 +844,11 @@ const DramaTravelGuide = () => {
 
  const isWished = (dramaId) => wishedIds.includes(dramaId);
 
-
- useEffect(() => {
-   try {
-     localStorage.setItem(WISH_STORAGE_KEY, JSON.stringify(wishedIds));
-   } catch (_) {}
- }, [wishedIds]);
-
+ const goToDetail = (dramaId, sceneIndex = 0) => {
+   setSelectedDrama(dramaId);
+   setActiveScene(sceneIndex);
+   setView('detail');
+ };
 
  useEffect(() => {
    const t = setInterval(() => {
@@ -907,7 +919,7 @@ const DramaTravelGuide = () => {
          </p>
          <div className="flex gap-4 pt-4">
            <button
-             onClick={() => { setSelectedDrama(heroItem.id); setActiveScene(0); setView('detail'); }}
+             onClick={() => goToDetail(heroItem.id)}
              className="px-10 py-3.5 bg-white text-black font-black rounded flex items-center gap-3 hover:bg-zinc-200 transition text-xl shadow-xl active:scale-95"
            >
              <Play size={24} fill="black" /> 지금 헌팅 시작
@@ -929,7 +941,7 @@ const DramaTravelGuide = () => {
              {mediaList.filter((item) => wishedIds.includes(item.id)).map((item) => (
                <div
                  key={item.id}
-                 onClick={() => { setSelectedDrama(item.id); setActiveScene(0); setView('detail'); }}
+                 onClick={() => goToDetail(item.id)}
                  className="group relative aspect-[2/3] rounded-lg overflow-hidden border border-red-600/50 transition-all duration-500 cursor-pointer hover:scale-105 hover:ring-2 hover:ring-red-600 shadow-2xl"
                >
                  <img src={item.image} className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" alt={item.title} />
@@ -962,7 +974,7 @@ const DramaTravelGuide = () => {
                className={`group relative aspect-[2/3] rounded-lg overflow-hidden border border-zinc-800 transition-all duration-500 cursor-pointer ${item.functional ? 'hover:scale-105 hover:ring-2 hover:ring-red-600 shadow-2xl' : 'opacity-40 grayscale'}`}
              >
                <div
-                 onClick={() => { if(item.functional) { setSelectedDrama(item.id); setActiveScene(0); setView('detail'); } }}
+                 onClick={() => item.functional && goToDetail(item.id)}
                  className="absolute inset-0"
                >
                  <img src={item.image} className="w-full h-full object-cover group-hover:opacity-40 transition-opacity" alt={item.title} />
@@ -1087,7 +1099,7 @@ const DramaTravelGuide = () => {
                    <div className="flex items-center gap-3 text-red-600 mb-4"><MapPin size={28} /><h3 className="text-xl font-black uppercase tracking-tighter">Location</h3></div>
                    <div className="space-y-5 mb-6"><h4 className="text-3xl font-black group-hover:text-red-500 transition-colors tracking-tight">{current.location.name}</h4><p className="text-zinc-400 text-sm font-medium leading-snug">{current.location.address}</p></div>
                    <div className="flex flex-wrap gap-3">
-                     <MapLinkIcons naverUrl={getNaverMapUrl(current.location.name, current.location.region, current.location.naverPlaceId, current.location.mapSearchQuery)} googleUrl={getGoogleMapUrl(current.location.name, current.location.region, current.location.googlePlaceId, current.location.mapSearchQuery)} size={22} />
+                     <MapLinkIcons naverUrl={getNaverMapUrl(current.location.name, current.location.region, current.location.naverPlaceId, current.location.mapSearchQuery, current.location.address)} googleUrl={getGoogleMapUrl(current.location.name, current.location.region, current.location.googlePlaceId, current.location.mapSearchQuery, current.location.address)} size={22} />
                    </div>
                  </div>
                </div>
@@ -1115,22 +1127,20 @@ const DramaTravelGuide = () => {
                     ></iframe>
                   </div>
                   <div className="p-4 bg-zinc-950/80 backdrop-blur-sm space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                     <button onClick={() => handlePinClick(current.location.name, 'main')} className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all ${selectedPin === 'main' ? 'bg-red-900/20 border border-red-600/50' : 'hover:bg-zinc-800 border border-transparent'}`}>
-                       <div className={`w-2 h-2 rounded-full ${selectedPin === 'main' ? 'bg-red-500 animate-pulse' : 'bg-red-900'}`}></div>
-                       <div className="flex-1"><span className={`text-xs font-bold block ${selectedPin === 'main' ? 'text-red-500' : 'text-zinc-300'}`}>{current.location.name}</span></div>
-                     </button>
-                     {current.restaurants.map((rest, i) => (
-                       <button key={`rest-${i}`} onClick={() => handlePinClick(rest.name, `rest-${i}`)} className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all ${selectedPin === `rest-${i}` ? 'bg-blue-900/20 border border-blue-600/50' : 'hover:bg-zinc-800 border border-transparent'}`}>
-                         <div className={`w-2 h-2 rounded-full ${selectedPin === `rest-${i}` ? 'bg-blue-500' : 'bg-blue-900'}`}></div>
-                         <div className="flex-1"><span className={`text-xs font-bold block ${selectedPin === `rest-${i}` ? 'text-blue-500' : 'text-zinc-300'}`}>{rest.name}</span></div>
-                       </button>
-                     ))}
-                     {current.attractions.map((attr, i) => (
-                       <button key={`attr-${i}`} onClick={() => handlePinClick(attr.name, `attr-${i}`)} className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all ${selectedPin === `attr-${i}` ? 'bg-amber-900/20 border border-amber-600/50' : 'hover:bg-zinc-800 border border-transparent'}`}>
-                         <div className={`w-2 h-2 rounded-full ${selectedPin === `attr-${i}` ? 'bg-amber-500' : 'bg-amber-900'}`}></div>
-                         <div className="flex-1"><span className={`text-xs font-bold block ${selectedPin === `attr-${i}` ? 'text-amber-500' : 'text-zinc-300'}`}>{attr.name}</span></div>
-                       </button>
-                     ))}
+                     {[
+                       { pinId: 'main', label: current.location.name, query: current.location.name, color: 'red' },
+                       ...current.restaurants.map((rest, i) => ({ pinId: `rest-${i}`, label: rest.name, query: rest.name, color: 'blue' })),
+                       ...current.attractions.map((attr, i) => ({ pinId: `attr-${i}`, label: attr.name, query: attr.name, color: 'amber' }))
+                     ].map(({ pinId, label, query, color }) => {
+                       const isSelected = selectedPin === pinId;
+                       const styles = { red: { btn: isSelected ? 'bg-red-900/20 border-red-600/50' : '', dot: isSelected ? 'bg-red-500' : 'bg-red-900', text: isSelected ? 'text-red-500' : 'text-zinc-300' }, blue: { btn: isSelected ? 'bg-blue-900/20 border-blue-600/50' : '', dot: isSelected ? 'bg-blue-500' : 'bg-blue-900', text: isSelected ? 'text-blue-500' : 'text-zinc-300' }, amber: { btn: isSelected ? 'bg-amber-900/20 border-amber-600/50' : '', dot: isSelected ? 'bg-amber-500' : 'bg-amber-900', text: isSelected ? 'text-amber-500' : 'text-zinc-300' } }[color];
+                       return (
+                         <button key={pinId} onClick={() => handlePinClick(query, pinId)} className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all border ${styles.btn || 'hover:bg-zinc-800 border-transparent'}`}>
+                           <div className={`w-2 h-2 rounded-full ${styles.dot} ${pinId === 'main' && isSelected ? 'animate-pulse' : ''}`}></div>
+                           <div className="flex-1"><span className={`text-xs font-bold block ${styles.text}`}>{label}</span></div>
+                         </button>
+                       );
+                     })}
                   </div>
                </div>
              </div>
@@ -1150,7 +1160,7 @@ const DramaTravelGuide = () => {
                          <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
                          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId, rest.mapSearchQuery)} googleUrl={getGoogleMapUrl(rest.name, current.location.region, rest.googlePlaceId, rest.mapSearchQuery)} size={18} />
+                           <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId, rest.mapSearchQuery, rest.address)} googleUrl={getGoogleMapUrl(rest.name, current.location.region, rest.googlePlaceId, rest.mapSearchQuery, rest.address)} size={18} />
                          </div>
                        </div>
                      </div>
@@ -1170,7 +1180,7 @@ const DramaTravelGuide = () => {
                          <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
                          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
                          <div className="flex flex-wrap gap-2">
-                           <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId, attr.mapSearchQuery)} googleUrl={getGoogleMapUrl(attr.name, current.location.region, attr.googlePlaceId, attr.mapSearchQuery)} size={18} />
+                           <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId, attr.mapSearchQuery, attr.address)} googleUrl={getGoogleMapUrl(attr.name, current.location.region, attr.googlePlaceId, attr.mapSearchQuery, attr.address)} size={18} />
                          </div>
                        </div>
                      </div>
@@ -1194,20 +1204,14 @@ const DramaTravelGuide = () => {
            <h1 onClick={() => setView('home')} className="text-2xl md:text-3xl font-black tracking-tighter text-red-600 cursor-pointer hover:scale-105 transition-transform uppercase tracking-widest">K Drama Hunters</h1>
            <nav className="hidden lg:flex gap-5 text-sm font-medium text-left">
              <button onClick={() => setView('home')} className={`hover:text-white transition ${view === 'home' ? 'text-white font-bold' : ''}`}>홈</button>
-             <button onClick={() => { setView('detail'); setSelectedDrama('Tangerines'); setActiveScene(0); }} className={`hover:text-white transition ${view === 'detail' ? 'text-white font-bold border-b-2 border-red-600 pb-1' : ''}`}>드라마 촬영지</button>
+             <button onClick={() => goToDetail('Tangerines')} className={`hover:text-white transition ${view === 'detail' ? 'text-white font-bold border-b-2 border-red-600 pb-1' : ''}`}>드라마 촬영지</button>
            </nav>
          </div>
         <div className="flex items-center gap-4">
           <button type="button" onClick={openSearch} className="flex items-center justify-center w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors" title="검색">
             <Search size={20} />
           </button>
-          <button type="button" onClick={() => window.open(`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener')} className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FEE500] hover:bg-[#fdd835] transition-colors" title="카카오톡으로 공유">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.48 3 2 6.58 2 11c0 3.54 2.29 6.53 5.47 8.12-.15.55-.54 2.02-.62 2.33-.1.39.14.38.44.22.2-.11 3.12-2.06 4.38-2.89.72.1 1.46.15 2.23.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/></svg>
-           </button>
-           <button type="button" onClick={() => { navigator.clipboard?.writeText(window.location.href).then(() => alert('링크가 복사되었습니다. 인스타그램에 붙여넣기 하세요.')); }} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#f9ed32] via-[#f58529] to-[#dd2a7b] hover:opacity-90 transition-opacity" title="인스타그램 공유 (링크 복사)">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1.5" fill="white"/></svg>
-           </button>
-           {wishedIds.length > 0 && (
+          {wishedIds.length > 0 && (
              <div className="flex items-center gap-2 text-zinc-400">
                <Heart size={20} className="fill-red-500/80 text-red-500/80" />
                <span className="text-sm font-bold">찜 {wishedIds.length}</span>
