@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X, ThumbsUp } from 'lucide-react';
+import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X } from 'lucide-react';
 
 
 const WISH_STORAGE_KEY = 'k-drama-hunters-wishlist';
@@ -90,7 +90,7 @@ const DramaTravelGuide = () => {
    {
      id: 'if-we',
      title: "만약에 우리",
-     image: "https://img.megabox.co.kr/SharedImg/2025/12/02/XN93w7FMsZUddbp4wDrNDo5Ne93b7kHT_380.jpg",
+     image: "https://i.namu.wiki/i/IvLzRrX-DS877M7tJiayBTPZOcfSkVaxW3SUdyq85PoHi5jXfpBfIbu1Ktgm3t4VtEDEUPEQtUUjj8huOCjUX4YViKdGqZtdyHqag--B1BVlehjPm16TL0cUX7DTCp8j456RcOYUzESjfC2_4OCs0w.webp",
      type: "영화",
      functional: true,
      cast: "구교환, 문가영",
@@ -100,7 +100,7 @@ const DramaTravelGuide = () => {
    {
      id: 'single-inferno',
      title: "솔로지옥 5",
-     image: "https://cdn.k-trendynews.com/news/photo/202502/179360_294668_2128.jpg",
+     image: "https://i.namu.wiki/i/a1s7X96x7Au03cA_RBXe7N6GWEArKt9eANM53RDIwrjyzeQZmE0pvNtwTKlpg8znWdtU3DZ6tjWUMOZHiDguSCxA3IgbClFN9D6ucVnUJ6YyFUJObeI4UZ6N_G4PVq224nCKywwtjl62lVR-hoYD7A.webp",
      type: "Netflix 예능",
      functional: true,
      cast: "홍진경, 이다희, 규현, 한해, 덱스",
@@ -110,7 +110,7 @@ const DramaTravelGuide = () => {
    {
      id: 'demon-hunters',
      title: "케이팝 데몬 헌터스",
-     image: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=800&q=80",
+     image: "https://i.namu.wiki/i/zss1DIbAfeBL3lDlni55jnXxqZqGmH4_LJRMrwu2ehktXwIdIkDMe-EPXEVu3XSzJefkpwFJ5NgYTkB7N8NGIgzcWzLRX2NzPv4WX6ARq5qkOreUQBH52mSpueinyqXfklrfLSIC47SOoW63kA08Zw.webp",
      type: "Netflix 오리지널",
      functional: true,
      cast: "가온, 루시, 카이",
@@ -1182,7 +1182,6 @@ const DramaTravelGuide = () => {
                      <Heart size={24} className={isWished(selectedDrama) ? 'fill-current' : ''} />
                      {isWished(selectedDrama) ? '찜 해제' : '찜하기'}
                    </button>
-                   <button type="button" className="p-2.5 md:p-3 bg-zinc-800/50 text-white rounded-full border border-zinc-600 hover:bg-zinc-700 transition" title="좋아요"><ThumbsUp size={24} /></button>
                  </div>
                  <p className="hidden md:block text-lg text-zinc-300 max-w-2xl leading-relaxed font-medium line-clamp-3">{current.location.desc}</p>
                </div>
@@ -1269,9 +1268,8 @@ const DramaTravelGuide = () => {
                          <h4 className="font-black text-sm mb-1 uppercase tracking-tight text-white">{rest.name}</h4>
                          <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
                          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
-                         <div className="flex flex-wrap gap-2 items-center">
+                         <div className="flex flex-wrap gap-2">
                            <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId, rest.mapSearchQuery, rest.address)} googleUrl={getGoogleMapUrl(rest.name, current.location.region, rest.googlePlaceId, rest.mapSearchQuery, rest.address)} size={18} />
-                           <a href={rest.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors uppercase tracking-widest"><ExternalLink size={14} /> 상세 정보 보기</a>
                          </div>
                        </div>
                      </div>
@@ -1290,9 +1288,8 @@ const DramaTravelGuide = () => {
                        <div className="p-6 flex flex-col justify-between flex-grow">
                          <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
                          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
-                         <div className="flex flex-wrap gap-2 items-center">
+                         <div className="flex flex-wrap gap-2">
                            <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId, attr.mapSearchQuery, attr.address)} googleUrl={getGoogleMapUrl(attr.name, current.location.region, attr.googlePlaceId, attr.mapSearchQuery, attr.address)} size={18} />
-                           <a href={attr.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors uppercase tracking-widest"><ExternalLink size={14} /> 상세 정보 보기</a>
                          </div>
                        </div>
                      </div>
@@ -1322,6 +1319,12 @@ const DramaTravelGuide = () => {
         <div className="flex items-center gap-4">
           <button type="button" onClick={openSearch} className="flex items-center justify-center w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors" title="검색">
             <Search size={20} />
+          </button>
+          <button type="button" onClick={() => window.open(`https://story.kakao.com/share?url=${encodeURIComponent(window.location.href)}`, '_blank', 'noopener')} className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FEE500] hover:bg-[#fdd835] transition-colors" title="카카오톡으로 공유">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.48 3 2 6.58 2 11c0 3.54 2.29 6.53 5.47 8.12-.15.55-.54 2.02-.62 2.33-.1.39.14.38.44.22.2-.11 3.12-2.06 4.38-2.89.72.1 1.46.15 2.23.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191919"/></svg>
+          </button>
+          <button type="button" onClick={() => { navigator.clipboard?.writeText(window.location.href).then(() => alert('링크가 복사되었습니다. 인스타그램에 붙여넣기 하세요.')); }} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-[#f9ed32] via-[#f58529] to-[#dd2a7b] hover:opacity-90 transition-opacity" title="인스타그램 공유 (링크 복사)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1.5" fill="white"/></svg>
           </button>
           {wishedIds.length > 0 && (
              <div className="flex items-center gap-2 text-zinc-400">
