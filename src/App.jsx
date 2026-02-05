@@ -828,22 +828,33 @@ const DramaTravelGuide = () => {
  }, [activeScene, selectedDrama, view]);
 
 
- // Google Maps JS API 스크립트 로드 (Tour Map용)
+ // Google Maps JS API 스크립트 로드 (Tour Map용) - callback으로 API 준비 후 초기화
  useEffect(() => {
-   if (view !== 'detail' || !googleMapsApiKey || window.google?.maps) {
-     if (window.google?.maps) setMapsScriptLoaded(true);
+   if (view !== 'detail' || !googleMapsApiKey) return;
+   if (window.google?.maps) {
+     setMapsScriptLoaded(true);
      return;
    }
    const id = 'google-maps-script';
    if (document.getElementById(id)) return;
+   window.__kdramaMapsReady = () => setMapsScriptLoaded(true);
    const script = document.createElement('script');
    script.id = id;
-   script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}`;
+   script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=__kdramaMapsReady`;
    script.async = true;
    script.defer = true;
-   script.onload = () => setMapsScriptLoaded(true);
    document.head.appendChild(script);
  }, [view, googleMapsApiKey]);
+
+
+ // 상세 이탈 시 지도 인스턴스 초기화 (다시 진입 시 새 지도 생성)
+ useEffect(() => {
+   if (view !== 'detail') {
+     markersRef.current.forEach(({ marker }) => marker.setMap(null));
+     markersRef.current = [];
+     mapInstanceRef.current = null;
+   }
+ }, [view]);
 
 
  // Tour Map: 지도 생성, 전체 장소 Geocode 후 마커 표시 및 fitBounds
@@ -1204,11 +1215,12 @@ const DramaTravelGuide = () => {
                       <Navigation size={12} /> {current.location.region} Area
                     </div>
                   </div>
-                  <div className="flex-grow w-full min-h-[300px] relative bg-zinc-800">
+                  <div className="w-full h-[360px] min-h-[300px] relative bg-zinc-800 flex-shrink-0">
                     {googleMapsApiKey ? (
                       <div
                         ref={mapContainerRef}
-                        className="absolute inset-0 w-full h-full min-h-[300px] grayscale contrast-125 opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                        className="absolute inset-0 w-full h-full grayscale contrast-125 opacity-90 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                        style={{ minHeight: 300 }}
                         aria-label="Tour Map"
                       />
                     ) : (
