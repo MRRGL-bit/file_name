@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X } from 'lucide-react';
+import { MapPin, Utensils, Play, ExternalLink, ChevronRight, Star, Plus, ChevronLeft, Map as MapIcon, Navigation, Heart, Search, X, ThumbsUp } from 'lucide-react';
 
 
 const WISH_STORAGE_KEY = 'k-drama-hunters-wishlist';
@@ -90,7 +90,7 @@ const DramaTravelGuide = () => {
    {
      id: 'if-we',
      title: "만약에 우리",
-     image: "https://i.namu.wiki/i/IvLzRrX-DS877M7tJiayBTPZOcfSkVaxW3SUdyq85PoHi5jXfpBfIbu1Ktgm3t4VtEDEUPEQtUUjj8huOCjUX4YViKdGqZtdyHqag--B1BVlehjPm16TL0cUX7DTCp8j456RcOYUzESjfC2_4OCs0w.webp",
+     image: "https://img.megabox.co.kr/SharedImg/2025/12/02/XN93w7FMsZUddbp4wDrNDo5Ne93b7kHT_380.jpg",
      type: "영화",
      functional: true,
      cast: "구교환, 문가영",
@@ -100,7 +100,7 @@ const DramaTravelGuide = () => {
    {
      id: 'single-inferno',
      title: "솔로지옥 5",
-     image: "https://i.namu.wiki/i/a1s7X96x7Au03cA_RBXe7N6GWEArKt9eANM53RDIwrjyzeQZmE0pvNtwTKlpg8znWdtU3DZ6tjWUMOZHiDguSCxA3IgbClFN9D6ucVnUJ6YyFUJObeI4UZ6N_G4PVq224nCKywwtjl62lVR-hoYD7A.webp",
+     image: "https://cdn.k-trendynews.com/news/photo/202502/179360_294668_2128.jpg",
      type: "Netflix 예능",
      functional: true,
      cast: "홍진경, 이다희, 규현, 한해, 덱스",
@@ -110,7 +110,7 @@ const DramaTravelGuide = () => {
    {
      id: 'demon-hunters',
      title: "케이팝 데몬 헌터스",
-     image: "https://i.namu.wiki/i/zss1DIbAfeBL3lDlni55jnXxqZqGmH4_LJRMrwu2ehktXwIdIkDMe-EPXEVu3XSzJefkpwFJ5NgYTkB7N8NGIgzcWzLRX2NzPv4WX6ARq5qkOreUQBH52mSpueinyqXfklrfLSIC47SOoW63kA08Zw.webp",
+     image: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=800&q=80",
      type: "Netflix 오리지널",
      functional: true,
      cast: "가온, 루시, 카이",
@@ -465,7 +465,7 @@ const DramaTravelGuide = () => {
            menu: "해산물 직화 라면",
            desc: "지옥도 감성을 그대로 느낄 수 있는 야외 직화 요리 스타일입니다.",
            url: getSearchUrl("사승봉도 캠핑"),
-           image: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=600&q=80"
+           image: "https://recipe1.ezmember.co.kr/cache/recipe/2025/04/24/11acd01ac6711fea5a9ec3fd57777a371.jpg"
          },
          {
            name: "인천항 연안부두",
@@ -473,7 +473,7 @@ const DramaTravelGuide = () => {
            desc: "섬으로 떠나기 전 인천에서 즐길 수 있는 별미 중 하나입니다.",
            url: getSearchUrl("인천 연안부두 맛집"),
            mapSearchQuery: "연안부두",
-           image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
+           image: "https://img1.daumcdn.net/thumb/R1280x0.fjpg/?fname=http://t1.daumcdn.net/brunch/service/user/5SXp/image/CMyMFkxKAR_DJ87GG4TKA5drUAw.jpg"
          }
        ],
        attractions: [
@@ -508,7 +508,7 @@ const DramaTravelGuide = () => {
          mapSearchQuery: "인스파이어드 리조트",
          desc: "시즌 5의 새로운 천국도 랜드마크입니다. 150m 길이의 LED 천장에서 펼쳐지는 환상적인 디지털 아트 쇼가 커플들의 로맨틱한 분위기를 극대화합니다.",
          url: getSearchUrl("인스파이어 리조트 오로라"),
-         image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+         image: "https://admin.inspireresorts.com/sites/default/files/2024-02/0104%20Aurora%20(6)_0.jpg"
        },
        restaurants: [
          {
@@ -564,7 +564,7 @@ const DramaTravelGuide = () => {
          address: "인천광역시 중구 공항문화로 127 리조트 내",
          desc: "사계절 내내 즐길 수 있는 실내 워터파크입니다. 투명한 유리 돔 아래에서 펼쳐지는 커플들의 과감하고 시원한 데이트 장소입니다.",
          url: getSearchUrl("인스파이어 스플래시 베이"),
-         image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+         image: "https://admin.inspireresorts.com/sites/default/files/2025-11/Splash%20Bay%20-%20Splash%20Bay%20Pool%20Dome%20img.png"
        },
        restaurants: [
          {
@@ -1182,6 +1182,7 @@ const DramaTravelGuide = () => {
                      <Heart size={24} className={isWished(selectedDrama) ? 'fill-current' : ''} />
                      {isWished(selectedDrama) ? '찜 해제' : '찜하기'}
                    </button>
+                   <button type="button" className="p-2.5 md:p-3 bg-zinc-800/50 text-white rounded-full border border-zinc-600 hover:bg-zinc-700 transition" title="좋아요"><ThumbsUp size={24} /></button>
                  </div>
                  <p className="hidden md:block text-lg text-zinc-300 max-w-2xl leading-relaxed font-medium line-clamp-3">{current.location.desc}</p>
                </div>
@@ -1268,8 +1269,9 @@ const DramaTravelGuide = () => {
                          <h4 className="font-black text-sm mb-1 uppercase tracking-tight text-white">{rest.name}</h4>
                          <p className="text-[10px] text-zinc-400 font-black mb-3 border-b border-zinc-800 pb-2 uppercase tracking-tighter">{rest.menu || '대표메뉴'}</p>
                          <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed font-medium mb-4">{rest.desc}</p>
-                         <div className="flex flex-wrap gap-2">
+                         <div className="flex flex-wrap gap-2 items-center">
                            <MapLinkIcons naverUrl={getNaverMapUrl(rest.name, current.location.region, rest.naverPlaceId, rest.mapSearchQuery, rest.address)} googleUrl={getGoogleMapUrl(rest.name, current.location.region, rest.googlePlaceId, rest.mapSearchQuery, rest.address)} size={18} />
+                           <a href={rest.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors uppercase tracking-widest"><ExternalLink size={14} /> 상세 정보 보기</a>
                          </div>
                        </div>
                      </div>
@@ -1288,8 +1290,9 @@ const DramaTravelGuide = () => {
                        <div className="p-6 flex flex-col justify-between flex-grow">
                          <h4 className="font-black text-sm mb-3 flex justify-between items-center uppercase tracking-tight text-white">{attr.name} <ChevronRight size={16} /></h4>
                          <p className="text-[11px] text-zinc-500 leading-relaxed font-medium line-clamp-3 mb-4">{attr.desc}</p>
-                         <div className="flex flex-wrap gap-2">
+                         <div className="flex flex-wrap gap-2 items-center">
                            <MapLinkIcons naverUrl={getNaverMapUrl(attr.name, current.location.region, attr.naverPlaceId, attr.mapSearchQuery, attr.address)} googleUrl={getGoogleMapUrl(attr.name, current.location.region, attr.googlePlaceId, attr.mapSearchQuery, attr.address)} size={18} />
+                           <a href={attr.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors uppercase tracking-widest"><ExternalLink size={14} /> 상세 정보 보기</a>
                          </div>
                        </div>
                      </div>
